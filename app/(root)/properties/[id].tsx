@@ -183,6 +183,7 @@ const Property = () => {
                   data={(property as any)?.gallery}
                   keyExtractor={(item) => item.$id}
                   horizontal
+                  bounces={false}
                   showsHorizontalScrollIndicator={false}
                   renderItem={({item}) => (
                     <TouchableOpacity onPress={() => setIsVisible(true)}>
@@ -199,7 +200,7 @@ const Property = () => {
             
             <ImageView
               images={formattedGalleryImages}
-              keyExtractor={(property as any)?.gallery.$id}
+              keyExtractor={(property as any)?.gallery.$id + 1 }
               imageIndex={0}
               visible={visible}
               onRequestClose={() => setIsVisible(false)}
@@ -207,6 +208,11 @@ const Property = () => {
               presentationStyle='fullScreen'
               swipeToCloseEnabled={true}
               doubleTapToZoomEnabled={true}
+              FooterComponent={({ imageIndex }: {imageIndex: number;}) => (
+                <View className='flex flex-row items-center justify-center h-64'>
+                  <Text className='text-lg text-white'>{`${imageIndex + 1} / ${formattedGalleryImages.length}`}</Text>
+                </View>
+              )}
             />
 
           <View className='mt-7'>
@@ -280,7 +286,7 @@ const Property = () => {
             </View>
 
             <TouchableOpacity onPress={() => {}} className='flex-1 flex flex-row items-center justify-center bg-primary-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
-              <Text className='text-white text-lg text-center font-rubik-bold'>Book Now</Text>
+              <Text className='text-white text-lg text-center font-rubik-bold'>Rent Now</Text>
             </TouchableOpacity>
           </View>
       </View>

@@ -1,7 +1,7 @@
 # Scout Mobile App
 
 <p align="center">
-  <img src="docs/images/app-banner.png" width="800" alt="Scout App">
+  <img src="assets/docs/images/app-banner.png" width="800" alt="Scout App">
 </p>
 
 A modern, feature-rich property search and management application built with React Native, TypeScript, and Appwrite. The app allows users to browse, filter, and view detailed information about various properties, including maps, reviews, and more.
@@ -194,14 +194,14 @@ eas build:run
 
 <div align="center">
   <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 20px;">
-    <img src="assets/docs/screenshots/home-screen.jpg" width="250" alt="Home Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-    <img src="assets/docs/screenshots/explore-screen.jpg" width="250" alt="Explore Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-    <img src="assets/docs/screenshots/profile-screen.jpg" width="250" alt="Profile Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <img src="assets/docs/images/home-screen.jpg" width="250" alt="Home Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <img src="assets/docs/images/explore-screen.jpg" width="250" alt="Explore Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <img src="assets/docs/images/profile-screen.jpg" width="250" alt="Profile Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
   </div>
   <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-    <img src="assets/docs/screenshots/details-screen-1.jpg" width="250" alt="Details Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-    <img src="assets/docs/screenshots/details-screen-2.jpg" width="250" alt="Details Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-    <img src="assets/docs/screenshots/search-screen.jpg" width="250" alt="Search Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <img src="assets/docs/images/details-screen-1.jpg" width="250" alt="Details Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <img src="assets/docs/images/details-screen-2.jpg" width="250" alt="Details Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <img src="assets/docs/images/search-screen.jpg" width="250" alt="Search Screen" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
   </div>
 </div>
 

@@ -1,5 +1,5 @@
 import { View, Text, FlatList, ScrollView, Image, Dimensions, TouchableOpacity, Platform } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useAppwrite } from '@/lib/useAppwrite';
 import { getPropertyByID } from '@/lib/appwrite';
@@ -8,6 +8,7 @@ import icons from '@/constants/icons';
 import { facilities } from '@/constants/data';
 import MapView, {Marker} from 'react-native-maps';
 import Comment from '@/components/Comment';
+import ImageView from "react-native-image-viewing";
 
 const Property = () => {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -17,7 +18,15 @@ const Property = () => {
     params:{
       id: id!,
     },
-  })
+  });
+
+  const formattedGalleryImages = React.useMemo(() => {
+    return (property as any)?.gallery?.map((item: { image: any; }) => ({
+      uri: item.image
+    })) || [];
+  }, [(property as any)?.gallery]);
+
+  const [visible, setIsVisible] = useState(false);
 
   return (
     <View>
@@ -176,15 +185,29 @@ const Property = () => {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   renderItem={({item}) => (
-                    <Image 
-                      source={{ uri: item.image}}
-                      className='size-40 rounded-xl'
-                    />
+                    <TouchableOpacity onPress={() => setIsVisible(true)}>
+                      <Image 
+                        source={{ uri: item.image}}
+                        className='size-40 rounded-xl'
+                      />
+                    </TouchableOpacity>
                   )}
                   contentContainerClassName='flex gap-4 mt-3'
                 />
               </View>
             )}
+            
+            <ImageView
+              images={formattedGalleryImages}
+              keyExtractor={(property as any)?.gallery.$id}
+              imageIndex={0}
+              visible={visible}
+              onRequestClose={() => setIsVisible(false)}
+              animationType='fade'
+              presentationStyle='fullScreen'
+              swipeToCloseEnabled={true}
+              doubleTapToZoomEnabled={true}
+            />
 
           <View className='mt-7'>
            <Text className='text-black-300 text-xl font-rubik-bold'>Location</Text>

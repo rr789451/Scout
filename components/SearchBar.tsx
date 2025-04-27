@@ -3,11 +3,14 @@ import React, { useState } from 'react'
 import { router, useLocalSearchParams, usePathname } from 'expo-router'
 import icons from '@/constants/icons';
 import {useDebouncedCallback} from "use-debounce"
+import { useFilterModal } from '@/lib/filterModalContext';
 
 const SearchBar = () => {
   const path = usePathname();
   const params = useLocalSearchParams<{ query?: string }>();
   const [search, setSearch] = useState(params.query);
+  const { setShowFilterModal, showFilterModal } = useFilterModal();
+  const handleShowFilters = () => setShowFilterModal(!showFilterModal);
 
   const debouncedSearch = useDebouncedCallback((text: string) => router.setParams({ query: text }), 500)
 
@@ -31,7 +34,7 @@ const SearchBar = () => {
           placeholderTextColor='#8C8E98'
         />
       </View>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={handleShowFilters}>
         <Image 
           source={icons.filter}
           className='size-5'

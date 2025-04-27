@@ -3,6 +3,7 @@ import "./globals.css";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import GlobalProvider from "@/lib/global-provider";
+import { FilterModalProvider } from "@/lib/filterModalContext";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts( {
@@ -24,7 +25,9 @@ export default function RootLayout() {
   
   return (
     <GlobalProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      <FilterModalProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </FilterModalProvider>
     </GlobalProvider>
   )
 }

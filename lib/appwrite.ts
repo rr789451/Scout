@@ -99,16 +99,38 @@ export async function getLatestProperties() {
     }
 }
 
-export async function getProperties({ filter, query, limit } : { 
+export async function getProperties({ filter, query, limit, maxPrice, minPrice, bedrooms, bathrooms, minArea, maxArea } : { 
     filter: string;
     query: string;
     limit?: number;
+    maxPrice?: number;
+    minPrice?: number;
+    bedrooms?: number;
+    bathrooms?: number;
+    minArea?: number;
+    maxArea?: number;
  }) {
     try {
         const buildQuery = [Query.orderDesc('$createdAt')];
 
         if(filter && filter !== 'All') {
             buildQuery.push(Query.equal('type', filter) );
+        }
+
+        if(minPrice && maxPrice) {
+            buildQuery.push(Query.between('price', minPrice, maxPrice));
+        }
+
+        if(minArea && maxArea) {
+            buildQuery.push(Query.between('area', minArea, maxArea));
+        }
+
+        if(bedrooms) {
+            buildQuery.push(Query.equal('bedrooms', bedrooms));
+        }
+
+        if(bathrooms) {
+            buildQuery.push(Query.equal('bathrooms', bathrooms));
         }
 
         if(query) {

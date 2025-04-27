@@ -1,19 +1,65 @@
 import icons from '@/constants/icons'
 import { useFilterModal } from '@/lib/filterModalContext';
-import React, { useState } from 'react'
-import { Image, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { Dimensions, Image, Text, TouchableOpacity, View } from 'react-native'
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import images from '@/constants/images';
 import Filters from './Filters';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 function FilterModal() {
-const { setShowFilterModal, filterValues, setFilterValues } = useFilterModal();
-const handleShowFilters = () => setShowFilterModal(false);
+const { setShowFilterModal, filterValues, setFilterValues, showFilterModal } = useFilterModal();
+const handleShowFilters = () => {
+  translateY.value = withTiming(SCREEN_HEIGHT, { duration: 400 }, () => {
+    runOnJS(setShowFilterModal)(false);
+  });
+  setShowFilterModal(false);
+}
+
+const translateY = useSharedValue(SCREEN_HEIGHT);
 
 const [priceRange, setPriceRange] = useState(filterValues.priceRange);
 const [areaRange, setAreaRange] = useState(filterValues.areaRange);
 const [bedrooms, setBedrooms] = useState(filterValues.bedrooms);
 const [bathrooms, setBathrooms] = useState(filterValues.bathrooms);
+
+const modalStyle = useAnimatedStyle(() => {
+  return {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: '#e6eaf2',
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    padding: 24,
+    zIndex: 1000,
+    elevation: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    transform: [{ translateY: translateY.value }],
+  };
+});
+
+useEffect(() => {
+  if (showFilterModal) {
+    translateY.value = withTiming(0, { duration: 400 });
+  } else {
+    translateY.value = withTiming(SCREEN_HEIGHT, { duration: 400 });
+  }
+}, [showFilterModal]);
 
 const handleBedroomAddCount = () => {
     setBedrooms(bedrooms + 1);
@@ -70,7 +116,11 @@ const handleReset = () => {
 }
 
 const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, twoMarkerLeftPosition }: { oneMarkerValue: string | number; twoMarkerValue: string | number; oneMarkerLeftPosition: number; twoMarkerLeftPosition: number }) => {
-    return (
+  const distance = Math.abs(oneMarkerLeftPosition - twoMarkerLeftPosition);
+  const overlapThreshold = 70;
+  const mightOverlap = distance < overlapThreshold;  
+  
+  return (
       <View style={{
         position: 'relative',
         height: 30,
@@ -78,7 +128,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
       }}>
         <View style={{
           position: 'absolute',
-          left: oneMarkerLeftPosition - 20,
+          left: oneMarkerLeftPosition - 15,
           top: 70,
         }}>
           <Text style={{
@@ -92,8 +142,8 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
         
         <View style={{
           position: 'absolute',
-          left: twoMarkerLeftPosition - 20,
-          top: 70,
+          left: twoMarkerLeftPosition - 15,
+          top: mightOverlap ? 20 : 70,
         }}>
           <Text style={{
             fontSize: 14,
@@ -108,6 +158,10 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
   };
 
   const AreaLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, twoMarkerLeftPosition }: { oneMarkerValue: string | number; twoMarkerValue: string | number; oneMarkerLeftPosition: number; twoMarkerLeftPosition: number }) => {
+    const distance = Math.abs(oneMarkerLeftPosition - twoMarkerLeftPosition);
+    const overlapThreshold = 70;
+    const mightOverlap = distance < overlapThreshold;  
+
     return (
       <View style={{
         position: 'relative',
@@ -116,7 +170,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
       }}>
         <View style={{
           position: 'absolute',
-          left: oneMarkerLeftPosition - 20,
+          left: oneMarkerLeftPosition - 15,
           top: 70,
         }}>
           <Text style={{
@@ -130,8 +184,8 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
         
         <View style={{
           position: 'absolute',
-          left: twoMarkerLeftPosition - 25,
-          top: 70,
+          left: twoMarkerLeftPosition - 15,
+          top: mightOverlap ? 20 : 70,
         }}>
           <Text style={{
             fontSize: 14,
@@ -153,21 +207,14 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
         bedrooms,
         bathrooms
       });
-
+      translateY.value = withTiming(SCREEN_HEIGHT, { duration: 400 }, () => {
+        runOnJS(setShowFilterModal)(false);
+      });
       setShowFilterModal(false);
     }
 
   return (
-    <View className='absolute bg-white bottom-0 w-full rounded-t-2xl border-t border-r border-r border-primary-200 p-7'
-    style={{
-        zIndex: 1000, 
-        elevation: 50,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -5 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-    }}
-    >
+    <Animated.View style={modalStyle}>
         <View className="flex flex-row items-center justify-between">
             <TouchableOpacity onPress={handleShowFilters} className="flex flex-row bg-primary-200 rounded-full size-10 items-center justify-center">
             <Image 
@@ -199,14 +246,14 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
                   resizeMode='contain'
                   style={{
                     marginLeft: -10,
-                    width: 330,
+                    width: 320,
                     height: 50,
                   }}
                 />
               </View>
                 <MultiSlider
                     values={[priceRange[0], priceRange[1]]}
-                    sliderLength={330}
+                    sliderLength={320}
                     onValuesChange={setPriceRange}
                     min={500}
                     max={7000}
@@ -224,6 +271,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
                     enabledTwo={true}
                     containerStyle={{
                         height: 50,
+                        padding: 10,
                     }}
                     enableLabel
                     customLabel={PriceLabel}
@@ -272,7 +320,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
             <View className='mb-3 mt-[-20px]'>
                 <MultiSlider
                     values={[areaRange[0], areaRange[1]]}
-                    sliderLength={330}
+                    sliderLength={320}
                     onValuesChange={setAreaRange}
                     min={300}
                     max={5000}
@@ -290,6 +338,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
                     enabledTwo={true}
                     containerStyle={{
                         height: 50,
+                        padding: 10,
                     }}
                     enableLabel
                     customLabel={AreaLabel}
@@ -301,7 +350,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
             <Text className='text-white text-lg text-center font-rubik-bold'>Set Filter</Text>
         </TouchableOpacity>
 
-    </View>
+    </Animated.View>
   )
 }
 

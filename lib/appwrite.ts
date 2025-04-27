@@ -101,7 +101,7 @@ export async function getLatestProperties() {
 
 export async function getProperties({ filter, query, limit, maxPrice, minPrice, bedrooms, bathrooms, minArea, maxArea } : { 
     filter: string;
-    query: string;
+    query?: string;
     limit?: number;
     maxPrice?: number;
     minPrice?: number;
@@ -126,11 +126,11 @@ export async function getProperties({ filter, query, limit, maxPrice, minPrice, 
         }
 
         if(bedrooms) {
-            buildQuery.push(Query.equal('bedrooms', bedrooms));
+            buildQuery.push(Query.lessThanEqual('bedrooms', bedrooms));
         }
 
         if(bathrooms) {
-            buildQuery.push(Query.equal('bathrooms', bathrooms));
+            buildQuery.push(Query.lessThanEqual('bathrooms', bathrooms));
         }
 
         if(query) {

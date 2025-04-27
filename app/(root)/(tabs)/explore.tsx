@@ -1,23 +1,32 @@
-import { Card, FeaturedCard } from "@/components/Cards";
+import { Card } from "@/components/Cards";
 import Filters from "@/components/Filters";
 import NoResults from "@/components/NoResults";
 import SearchBar from "@/components/SearchBar";
 import icons from "@/constants/icons";
 import { getProperties } from "@/lib/appwrite";
+import { useFilterModal } from "@/lib/filterModalContext";
 import { useAppwrite } from "@/lib/useAppwrite";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
-import { ActivityIndicator, Button, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Explore() {
   const params = useLocalSearchParams<{ query?: string; filter?: string; }>()
+  
+  const { filterValues } = useFilterModal();
 
   const { data: properties, loading, refetch } = useAppwrite({
     fn: getProperties,
     params:{
       filter: params.filter!,
       query: params.query!,
+      minPrice: filterValues.priceRange[0],
+      maxPrice: filterValues.priceRange[1],
+      minArea: filterValues.areaRange[0],
+      maxArea: filterValues.areaRange[1],
+      bedrooms: filterValues.bedrooms,
+      bathrooms: filterValues.bathrooms,
     },
     skip: true,
   })
@@ -28,8 +37,14 @@ export default function Explore() {
     refetch({
       filter: params.filter!,
       query: params.query!,
+      minPrice: filterValues.priceRange[0],
+      maxPrice: filterValues.priceRange[1],
+      minArea: filterValues.areaRange[0],
+      maxArea: filterValues.areaRange[1],
+      bedrooms: filterValues.bedrooms,
+      bathrooms: filterValues.bathrooms,
     })
-  }, [params.filter, params.query])
+  }, [params.filter, params.query, filterValues])
 
   return (
     <SafeAreaView className="bg-white h-full">

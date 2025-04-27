@@ -4,16 +4,16 @@ import React, { useState } from 'react'
 import { Image, Text, TouchableOpacity, View } from 'react-native'
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import images from '@/constants/images';
-import NewFilters from './NewFilters';
+import Filters from './Filters';
 
 function FilterModal() {
-const { setShowFilterModal } = useFilterModal();
+const { setShowFilterModal, filterValues, setFilterValues } = useFilterModal();
 const handleShowFilters = () => setShowFilterModal(false);
 
-const [priceRange, setPriceRange] = useState([500, 5000]);
-const [areaRange, setAreaRange] = useState([500, 3000]);
-const [bedrooms, setBedrooms] = useState(2);
-const [bathrooms, setBathrooms] = useState(1);
+const [priceRange, setPriceRange] = useState(filterValues.priceRange);
+const [areaRange, setAreaRange] = useState(filterValues.areaRange);
+const [bedrooms, setBedrooms] = useState(filterValues.bedrooms);
+const [bathrooms, setBathrooms] = useState(filterValues.bathrooms);
 
 const handleBedroomAddCount = () => {
     setBedrooms(bedrooms + 1);
@@ -48,10 +48,25 @@ const handleBathroomSubCount = () => {
 }
 
 const handleReset = () => {
-    setPriceRange([1000, 2000]);
-    setAreaRange([1000, 1500]);
-    setBedrooms(2);
-    setBathrooms(1);
+  const defaultPriceRange = [500, 7000];
+  const defaultAreaRange = [300, 5000];
+  const defaultBedrooms = 5;
+  const defaultBathrooms = 5;
+  const defaultCategory = 'All';
+  
+  setPriceRange(defaultPriceRange);
+  setAreaRange(defaultAreaRange);
+  setBedrooms(defaultBedrooms);
+  setBathrooms(defaultBathrooms);
+  
+  setFilterValues({
+    ...filterValues,
+    priceRange: defaultPriceRange,
+    areaRange: defaultAreaRange,
+    bedrooms: defaultBedrooms,
+    bathrooms: defaultBathrooms,
+    selectedCategory: defaultCategory,
+  });
 }
 
 const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, twoMarkerLeftPosition }: { oneMarkerValue: string | number; twoMarkerValue: string | number; oneMarkerLeftPosition: number; twoMarkerLeftPosition: number }) => {
@@ -129,6 +144,18 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
       </View>
     );
   };
+  
+    const handleFilterPress = () => {
+      setFilterValues({
+        ...filterValues,
+        priceRange,
+        areaRange,
+        bedrooms,
+        bathrooms
+      });
+
+      setShowFilterModal(false);
+    }
 
   return (
     <View className='absolute bg-white bottom-0 w-full rounded-t-2xl border-t border-r border-r border-primary-200 p-7'
@@ -182,7 +209,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
                     sliderLength={330}
                     onValuesChange={setPriceRange}
                     min={500}
-                    max={5000}
+                    max={7000}
                     step={100}
                     selectedStyle={{ backgroundColor: '#3b82f6', height: 4 }} 
                     trackStyle={{ height: 0 }} 
@@ -206,7 +233,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
 
         <View className='flex flex-col mt-8'>
             <Text className="text-base font-rubik-bold text-black-300">Property Type</Text>
-            <NewFilters />
+            <Filters wrapMode={true} />
         </View>
 
         <View className='flex flex-col mt-8'>
@@ -247,8 +274,8 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
                     values={[areaRange[0], areaRange[1]]}
                     sliderLength={330}
                     onValuesChange={setAreaRange}
-                    min={500}
-                    max={3000}
+                    min={300}
+                    max={5000}
                     step={100}
                     selectedStyle={{ backgroundColor: '#3b82f6', height: 4 }} 
                     trackStyle={{ backgroundColor: '#e6eaf2', height: 4 }} 
@@ -270,7 +297,7 @@ const PriceLabel = ({ oneMarkerValue, twoMarkerValue, oneMarkerLeftPosition, two
             </View>
         </View>
 
-        <TouchableOpacity onPress={() => {}} className='flex-1 flex flex-row items-center justify-center bg-primary-300 shadow-md shadow-zinc-400 py-3 rounded-full mt-8 mb-5'>
+        <TouchableOpacity onPress={handleFilterPress} className='flex-1 flex flex-row items-center justify-center bg-primary-300 shadow-md shadow-zinc-400 py-3 rounded-full mt-8 mb-5'>
             <Text className='text-white text-lg text-center font-rubik-bold'>Set Filter</Text>
         </TouchableOpacity>
 

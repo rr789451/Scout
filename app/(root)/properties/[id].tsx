@@ -1,5 +1,5 @@
-import { View, Text, FlatList, ScrollView, Image, Dimensions, TouchableOpacity, Platform } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, FlatList, ScrollView, Image, Dimensions, TouchableOpacity, Platform, Linking, Alert } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useAppwrite } from '@/lib/useAppwrite';
 import { getPropertyByID } from '@/lib/appwrite';
@@ -13,6 +13,11 @@ import ImageView from "react-native-image-viewing";
 const Property = () => {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const windowHeight = Dimensions.get("window").height
+
+  const [coordinates, setCoordinates] = useState<{latitude: number, longitude: number} | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const { data: property } = useAppwrite({
     fn: getPropertyByID,
     params:{
@@ -27,6 +32,78 @@ const Property = () => {
   }, [(property as any)?.gallery]);
 
   const [visible, setIsVisible] = useState(false);
+
+  const getCoordinatesFromAddress = async (address: string) => {
+    try {
+      const encodedAddress = encodeURIComponent(address);
+      const headers = {
+        'User-Agent': 'Scout/1.0', 
+        'Accept-Language': 'en'
+      };
+      
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&limit=1`,
+        { headers }
+      );
+      
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        return { 
+          latitude: parseFloat(lat), 
+          longitude: parseFloat(lon) 
+        };
+      } else {
+        Alert.alert('Error', 'Could not find coordinates for this address');
+        return null;
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Could not find coordinates for this address');
+      return null;
+    }
+  };
+
+  const defaultRegion = {
+    latitude: 40.682535131853314,
+    longitude: -73.94307094540474,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
+  };
+
+  useEffect(() => {
+    const fetchCoordinates = async () => {
+      setLoading(true);
+      try {
+        const coords = await getCoordinatesFromAddress((property as any)?.address);
+        if (coords) {
+          setCoordinates(coords);
+          setError(null);
+        } else {
+          Alert.alert('Error','Could not find coordinates for this address');
+        }
+      } catch (err) {
+        Alert.alert('Error', 'Error loading map data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchCoordinates();
+  }, [(property as any)?.address]);
+
+
+  const openDirections = () => {
+    if (!coordinates) return;
+    
+    const scheme = Platform.OS === 'ios' ? 'maps:' : 'geo:';
+    const url = Platform.select({
+      ios: `maps:0,0?q=${(property as any)?.name}@${coordinates.latitude},${coordinates.longitude}`,
+      android: `geo:0,0?q=${coordinates.latitude},${coordinates.longitude}(${(property as any)?.name})`
+    });
+    
+    Linking.openURL(url!);
+  };
 
   return (
     <View>
@@ -224,19 +301,31 @@ const Property = () => {
             />
             <Text className='text-black-200 text-md font-rubik-medium mt-0.5'>{(property as any)?.address}</Text>
            </View>
+           <TouchableOpacity 
+              onPress={openDirections}
+              className="flex flex-row items-center justify-center bg-primary-300 py-2 px-4 rounded-full mt-2"
+            >
+              <Text className="text-white font-rubik-bold">Get Directions</Text>
+            </TouchableOpacity>
            <View className='mt-5 w-100'>
             <MapView 
               style={{ width: '100%', height: 200, borderRadius: 20 }}
-              initialRegion={{
-                latitude: 40.682535131853314,
-                longitude: -73.94307094540474,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
-              }}  
+              region={{
+                  latitude: coordinates?.latitude || defaultRegion.latitude,
+                  longitude: coordinates?.longitude || defaultRegion.longitude,
+                  latitudeDelta: 0.005,
+                  longitudeDelta: 0.005,
+                }
+              }  
             >
-              <Marker 
-                coordinate={{latitude: 40.682535131853314, longitude: -73.94307094540474}}
-              />
+              {coordinates && (
+                <Marker 
+                  coordinate={coordinates}
+                  pinColor='#0066FF'
+                  title={(property as any)?.name}
+                  description={(property as any)?.address}
+                />
+              )}
             </MapView>
            </View>
           </View>

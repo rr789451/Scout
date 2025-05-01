@@ -99,7 +99,7 @@ export default function Index() {
             </View>
             <View className="flex flex-row items-center justify-between">
               <Text className="text-xl font-rubik-bold text-black-300">Our Recommendations</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push("/explore")}>
                 <Text className="text-base font-rubik-bold text-primary-300">See More</Text>
               </TouchableOpacity>
             </View>

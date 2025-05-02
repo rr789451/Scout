@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ScrollView, Image, Dimensions, TouchableOpacity, Platform, Linking, Alert } from 'react-native'
+import { View, Text, FlatList, ScrollView, Image, Dimensions, TouchableOpacity, Platform, Linking, Alert, Share } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useAppwrite } from '@/lib/useAppwrite';
@@ -107,6 +107,48 @@ const Property = () => {
     Linking.openURL(url!);
   };
 
+  const onShare = async () => {
+    const propertyName = (property as any)?.name || '';
+    const propertyAddress = (property as any)?.address || '';
+    const propertyId = (property as any)?.$id || '';
+    
+    const title = `Property: ${propertyName}`;
+    const url = `scout://properties/${propertyId}`;
+    const message = `Check out this property:\n${propertyName} - ${propertyAddress}\n\n${url}`;
+    
+    
+    let shareOptions;
+
+    if (Platform.OS === 'ios') {
+      shareOptions = {
+        message,
+        title,
+      };
+    } else {
+      shareOptions = {
+        message: `${message}`,
+        title,
+      };
+    }
+    
+    try {
+      const result = await Share.share(shareOptions);
+      
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log('Shared with activity type: ', result.activityType);
+        } else {
+          console.log('Shared successfully!');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Share was dismissed');
+      }
+    } catch (error) {
+      console.error('Error sharing property: ', error);
+      Alert.alert('Sharing Failed', 'Unable to share this property right now.');
+    }
+  };
+
   return (
     <View>
       <ScrollView
@@ -144,7 +186,9 @@ const Property = () => {
                   className="size-7"
                   tintColor={"#191D31"}
                 />
-                <Image source={icons.send} className="size-7" />
+                <TouchableOpacity onPress={onShare}>
+                  <Image source={icons.send} className="size-7" />
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -211,14 +255,18 @@ const Property = () => {
                 </View>
               </View>
               <View className='flex flex-row gap-7'>
-                <Image 
-                  source={icons.chat}
-                  className="size-7"
-                />
-                <Image 
-                  source={icons.phone}
-                  className='size-7'
-                />
+                <TouchableOpacity onPress={() => Linking.openURL(`mailto:${(property as any)?.agent.email}`)}>
+                  <Image 
+                    source={icons.chat}
+                    className="size-7"
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => Linking.openURL(`tel:${(property as any)?.agent.phone}`)}>
+                  <Image 
+                    source={icons.phone}
+                    className='size-7'
+                  />
+                </TouchableOpacity>
               </View>
             </View>
           </View>

@@ -71,6 +71,8 @@ const Property = () => {
     longitudeDelta: 0.005,
   };
 
+  const handleReviews = (id: string) => router.push(`/properties/${id}/reviews`);
+
   useEffect(() => {
     const fetchCoordinates = async () => {
       setLoading(true);
@@ -340,7 +342,7 @@ const Property = () => {
                   />
                   <Text className='text-xl text-black-300 font-rubik-bold ml-2'>{(property as any)?.rating}  ({(property as any)?.reviews.length} reviews)</Text>
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => handleReviews((property as any)?.$id)}>
                   <Text className='text-base text-primary-300 font-rubik-bold'>See All</Text>
                 </TouchableOpacity>
               </View>

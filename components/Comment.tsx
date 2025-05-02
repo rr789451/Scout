@@ -30,12 +30,19 @@ const Comment = ({item}: Props) => {
 
   return (
     <View className='flex flex-col items-start'>
-        <View className='flex flex-row items-center'>
+        <View className='flex flex-row items-center w-full'>
             <Image
                 source={{ uri: item.avatar }}
                 className='size-14 rounded-full' 
             />
-            <Text className='text-black-300 text-xl font-rubik-bold ml-4'>{item.name}</Text>
+            <Text className='text-black-300 text-lg font-rubik-medium ml-4'>{item.name}</Text>
+            <View className='flex flex-row items-center ml-auto'>
+              <Text className='text-black-300 text-lg font-rubik-bold mr-1'>{item.rating}</Text>
+              <Image 
+                source={icons.star}
+                className='size-5'
+              />
+            </View>
         </View>
 
         <Text className='text-black-200 text-md font-rubik-medium mt-5'>{item.review}</Text>

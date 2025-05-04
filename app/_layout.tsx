@@ -4,6 +4,7 @@ import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import GlobalProvider from "@/lib/global-provider";
 import { FilterModalProvider } from "@/lib/filterModalContext";
+import { StripeProvider } from "@/lib/StripeProvider";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts( {
@@ -26,7 +27,27 @@ export default function RootLayout() {
   return (
     <GlobalProvider>
       <FilterModalProvider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <StripeProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen 
+              name="payment"
+              options={{
+                headerShown: true,
+                title: 'Payment',
+                headerBackVisible: false
+              }}
+            />
+
+            <Stack.Screen 
+              name="paymentSuccess/[propertyName]"
+              options={{
+                headerShown: true,
+                title: 'Payment Successful',
+                headerBackVisible: false
+              }}
+            />
+          </Stack>
+        </StripeProvider>
       </FilterModalProvider>
     </GlobalProvider>
   )

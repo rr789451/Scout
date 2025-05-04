@@ -149,6 +149,19 @@ const Property = () => {
     }
   };
 
+  const handleRentPayment = () => {
+    router.push({
+      pathname: '/payment',
+      params:{
+        propertyId: (property as any)?.$id,
+        propertyName: (property as any)?.name,
+        rentAmount: (property as any)?.price,
+        imageUrl: (property as any)?.image,
+        address: (property as any)?.address,
+      }
+    })
+  }
+
   return (
     <View>
       <ScrollView
@@ -424,7 +437,7 @@ const Property = () => {
               <Text numberOfLines={1} className='text-xl text-start text-primary-300 font-rubik-bold'>$ {(property as any)?.price}</Text>
             </View>
 
-            <TouchableOpacity onPress={() => {}} className='flex-1 flex flex-row items-center justify-center bg-primary-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
+            <TouchableOpacity onPress={handleRentPayment} className='flex-1 flex flex-row items-center justify-center bg-primary-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
               <Text className='text-white text-lg text-center font-rubik-bold'>Rent Now</Text>
             </TouchableOpacity>
           </View>

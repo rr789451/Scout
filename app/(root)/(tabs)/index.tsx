@@ -8,7 +8,7 @@ import { useGlobalContext } from "@/lib/global-provider";
 import { useAppwrite } from "@/lib/useAppwrite";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
-import { ActivityIndicator, Button, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -39,6 +39,17 @@ export default function Index() {
     })
   }, [params.filter, params.query])
 
+  const getTimeBasedGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour > 4 && currentHour < 12) {
+      return "Good Morning";
+    } else if (currentHour >= 12 && currentHour < 18) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  };
+
   return (
     <SafeAreaView className="bg-white h-full">
       <FlatList 
@@ -63,7 +74,7 @@ export default function Index() {
                   className="size-12 rounded-full"
                 />
                 <View className="flex flex-col items-start ml-2 justify-center">
-                  <Text className="text-xs font-rubik text-black-100">Good Morning</Text>
+                  <Text className="text-xs font-rubik text-black-100">{getTimeBasedGreeting()}</Text>
                   <Text className="text-base font-rubik-medium text-black-300">{user?.name}</Text>
                 </View>
               </View>

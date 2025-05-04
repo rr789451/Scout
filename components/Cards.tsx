@@ -71,3 +71,21 @@ export const Card = ({ item: { image, rating, name, address, price }, onPress }:
         </TouchableOpacity>
     )
 }
+
+export const SingleCard = ({imageUrl, name, address, price} : {imageUrl: string, name: string, address: string, price: string}) => {
+    return(
+        <View className='flex-1 w-full mt-4 px-3 py-4 rounded-lg bg-white shadow-lg shadow-black-100/70 relative'>
+            <Image 
+                source={{ uri: imageUrl }}
+                className='w-full h-40 rounded-lg'
+            />
+            <View className='flex flex-col mt-2'>
+                <Text className='text-base font-rubik-bold text-black-300'>{name}</Text>
+                <Text className='text-xs font-rubik text-black-200'>{address}</Text>
+                <View className='flex flex-row items-center justify-between mt-2'>
+                    <Text className='text-base font-rubik-bold text-primary-300'>${price}</Text>
+                </View>
+            </View>
+        </View>
+    )
+}

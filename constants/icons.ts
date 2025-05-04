@@ -31,6 +31,14 @@ import swim from "@/assets/icons/swim.png";
 import wifi from "@/assets/icons/wifi.png";
 import location from "@/assets/icons/location.png";
 import edit from "@/assets/icons/edit.png";
+import check from "@/assets/icons/check.svg";
+import card from "@/assets/icons/card.png";
+import cardWhite from "@/assets/icons/cardWhite.png";
+import building from "@/assets/icons/building.png";
+import paypal from "@/assets/icons/paypal.png";
+import applepay from "@/assets/icons/applepay.png";
+import googlepay from "@/assets/icons/googlepay.png";
+import lock from "@/assets/icons/lock.png"
 
 export default {
   google,
@@ -66,4 +74,12 @@ export default {
   wifi,
   location,
   edit,
+  check,
+  card,
+  cardWhite,
+  building,
+  paypal,
+  applepay,
+  googlepay,
+  lock,
 };

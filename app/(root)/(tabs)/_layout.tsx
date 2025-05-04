@@ -64,6 +64,21 @@ const TabsLayout = () => {
             />
 
             <Tabs.Screen 
+                name='chat'
+                options={{
+                    title: 'Chat',
+                    headerShown: false,
+                    tabBarIcon: ({ focused }) => (
+                        <TabIcon 
+                        icon={icons.chat}
+                        title='Chat'
+                        focused={focused}
+                        />
+                    )
+                }}
+            />
+            
+            <Tabs.Screen 
                 name='profile'
                 options={{
                     title: 'Profile',

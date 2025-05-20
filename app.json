@@ -45,6 +45,13 @@
             "./assets/fonts/Rubik-Regular.ttf"
           ]
         }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.scout.app",
+          "enableGooglePay": true
+        }
       ]
     ],
     "experiments": {

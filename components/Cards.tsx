@@ -74,7 +74,7 @@ export const Card = ({ item: { image, rating, name, address, price }, onPress }:
 
 export const SingleCard = ({imageUrl, name, address, price} : {imageUrl: string, name: string, address: string, price: string}) => {
     return(
-        <View className='flex-1 w-full mt-4 px-3 py-4 rounded-lg bg-white shadow-lg shadow-black-100/70 relative'>
+        <View className='w-full mt-4 px-3 py-4 rounded-lg bg-white shadow-lg shadow-black-100/70 relative'>
             <Image 
                 source={{ uri: imageUrl }}
                 className='w-full h-40 rounded-lg'

@@ -1,6 +1,6 @@
 import { useGlobalContext } from '@/lib/global-provider';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { CardForm } from '@stripe/stripe-react-native';
+import { CardForm, confirmSetupIntent, createPaymentMethod } from '@stripe/stripe-react-native';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -30,6 +30,9 @@ function Payment() {
 
   const [loading, setLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState('');
+  const [customerId, setCustomerId] = useState('');
+  const [priceId, setPriceId] = useState('');
+  const [intentId, setIntentId] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
 
   const [cardNumber, setCardNumber] = useState('');
@@ -61,61 +64,26 @@ function Payment() {
     try {
         setLoading(true);
 
-        const response = await axios.post('/create-subscription', {
+        const response = await axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/create-subscription`, {
             amount: rentAmount,
             propertyId,
             userId: user?.$id,
             email: user?.email,
             name: user?.name,
+            propertyName: propertyName,
         });
 
         setClientSecret(response.data.clientSecret);
+        setCustomerId(response.data.customerId);
+        setIntentId(response.data.setupIntentId);
+        setPriceId(response.data.priceId);
     } catch (error) {
         Alert.alert('Subscription Setup Error', 'We encountered an issue setting up your subscription. Please try again.');
+        router.back();
         console.log('Payment Intent Error:', error);
     } finally {
         setLoading(false);
     }
-  };
-
-  const formatCardNumber = (text: string) => {
-    const cleaned = text.replace(/\s/g, '');
-    let formatted = '';
-
-    for (let i = 0; i < cleaned.length; i++) {
-        if(i > 0 && i % 4 === 0) {
-            formatted += ' ';
-        }
-        formatted += cleaned[i];
-    }
-
-    return formatted;
-  };
-
-  const formatExpiry = (text: string) => {
-    const cleaned = text.replace(/\D/g, '');
-
-    if(cleaned.length >= 3) {
-        return `${cleaned.substring(0, 2)}/${cleaned.substring(2, 4)}`;
-    } else {
-        return cleaned;
-    }
-  };
-
-  const handleCardNumberChange = (text: string) => {
-    const cleaned = text.replace(/\D/g, '').substring(0, 16);
-    setCardNumber(formatCardNumber(cleaned));
-  };
-
-  const handleExpiryChange = (text: string) => {
-    const formatted = formatExpiry(text);
-    if(formatted.length <= 5) {
-        setExpiry(formatted);
-    }
-  };
-
-  const handleCVVChange = (text: string) => {
-    const cleaned = text.replace(/\D/g, '').substring(0, 4);
   };
 
   const isFormValid = () => {
@@ -132,41 +100,52 @@ function Payment() {
         setLoading(true);
         setPaymentStatus('Processing payment...');
 
-        // const [month, year] = expiry.split('/')
+        const { paymentMethod: stripePaymentMethod, error } = await createPaymentMethod({
+            paymentMethodType: 'Card',
+            paymentMethodData: {
+                billingDetails: {
+                    email: user?.email,
+                    name: user?.name,
+                },
+            },
+        });
 
-        // const { paymentMethod: stripePaymentMethod, error } = await createPaymentMethod({
-        //     paymentMethodType: 'Card',
-        //     paymentMethodData: {
-        //         billingDetails: {
-        //             email: user?.email,
-        //             name: user?.name,
-        //         },
-        //     },
-        // });
+        if(error) {
+            throw new Error('Payment method creation failed');
+        }
 
-        // if(error) {
-        //     throw new Error('Payment method creation failed');
-        // }
+        const { error: confirmError } = await confirmSetupIntent(clientSecret, {
+            paymentMethodType: 'Card',
+            paymentMethodData: {
+                billingDetails: {
+                    email: user?.email,
+                    name: user?.name,
+                },
+            },
+        });
 
-        // const { error: confirmError } = await confirmPayment(clientSecret, {
-        //     paymentMethodType: 'Card',
-        //     paymentMethodData: {
-        //         billingDetails: {
-        //             email: user?.email,
-        //             name: user?.name,
-        //         },
-        //     },
-        // });
+        if(confirmError) {
+            throw new Error('Payment confirmation failed');
+        }
 
-        // if(confirmError) {
-        //     throw new Error('Payment confirmation failed');
-        // }
+        const finalizeResponse = await axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/finalize-subscription`, {
+            customerId: customerId,
+            priceId: priceId,
+            paymentMethodId: stripePaymentMethod.id,
+            propertyId,
+            userId: user?.$id
+        });
 
-        // await axios.post('/confirm-subscription', {
-        //     propertyId,
-        //     userId: user?.$id,
-        //     paymentMethodId: stripePaymentMethod.id
-        // });
+        await axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/confirm-subscription`, {
+            userId: user?.$id,
+            propertyId,
+            paymentMethodId: stripePaymentMethod.id,
+            stripeSubscriptionId: finalizeResponse.data.subscriptionId,
+            stripeCustomerId: finalizeResponse.data.customerId,
+            stripePriceId: finalizeResponse.data.priceId,
+            amount: finalizeResponse.data.amount,
+            currency: finalizeResponse.data.currency,
+        });
 
         setPaymentStatus('Payment Successful!');
 

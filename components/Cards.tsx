@@ -72,7 +72,7 @@ export const Card = ({ item: { image, rating, name, address, price }, onPress }:
     )
 }
 
-export const SingleCard = ({imageUrl, name, address, price} : {imageUrl: string, name: string, address: string, price: string}) => {
+export const SingleCard = ({imageUrl, name, address, price, startDate, duration} : {imageUrl: string, name: string, address: string, price: string, startDate: string, duration: number}) => {
     return(
         <View className='w-full mt-4 px-3 py-4 rounded-lg bg-white shadow-lg shadow-black-100/70 relative'>
             <Image 
@@ -85,6 +85,14 @@ export const SingleCard = ({imageUrl, name, address, price} : {imageUrl: string,
                 <View className='flex flex-row items-center justify-between mt-2'>
                     <Text className='text-base font-rubik-bold text-primary-300'>${price}</Text>
                 </View>
+            </View>
+            <View className='flex flex-row gap-3 mt-4'>
+                <Text className='flex-1 bg-primary-300 py-4 rounded-xl text-white font-rubik-semibold text-center'>
+                    {startDate}
+                </Text>
+                <Text className='flex-1 bg-primary-300 py-4 rounded-xl text-white font-rubik-semibold text-center'>
+                    {duration} months
+                </Text>
             </View>
         </View>
     )

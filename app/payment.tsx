@@ -25,7 +25,7 @@ const getCardType = ({ number } : { number: string }) => {
 
 function Payment() {
   const { user } = useGlobalContext();
-  const { propertyId, propertyName, rentAmount, imageUrl, address } = useLocalSearchParams();
+  const { propertyId, propertyName, rentAmount, imageUrl, address, startDate, duration } = useLocalSearchParams();
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -145,6 +145,8 @@ function Payment() {
             stripePriceId: finalizeResponse.data.priceId,
             amount: finalizeResponse.data.amount,
             currency: finalizeResponse.data.currency,
+            startDate: new Date(Array.isArray(startDate) ? startDate[0] : startDate).toISOString(),
+            duration: duration
         });
 
         setPaymentStatus('Payment Successful!');
@@ -160,8 +162,8 @@ function Payment() {
         }, 1000);
     } catch (error) {
         setPaymentStatus('');
-
         Alert.alert('Payment Failed', 'We could not process your payment. Please check your details and try again.');
+        router.back();
         console.log('Payment processing error:', error);
     } finally {
         setLoading(false);
@@ -209,6 +211,8 @@ function Payment() {
                         name={Array.isArray(propertyName) ? propertyName[0] : propertyName}
                         address={Array.isArray(address) ? address[0] : address}
                         price={Array.isArray(rentAmount) ? rentAmount[0] : rentAmount}
+                        startDate={new Date(Array.isArray(startDate) ? startDate[0] : startDate).toLocaleDateString('en-GB')}
+                        duration={Array.isArray(duration) ? Number(duration[0]) : Number(duration)}
                     />
                 </View>
 

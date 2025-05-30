@@ -20,7 +20,7 @@ module.exports = {
           300: '#0061FF',
         },
         accent: {
-          100: '#FBFBFD',
+          100: '#F0EDFF',
         },
         black: {
           DEFAULT: '#000000',

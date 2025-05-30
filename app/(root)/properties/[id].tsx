@@ -9,6 +9,7 @@ import { facilities } from '@/constants/data';
 import MapView, {Marker} from 'react-native-maps';
 import Comment from '@/components/Comment';
 import ImageView from "react-native-image-viewing";
+import RentalPeriodModal from '@/components/RentalPeriodModal';
 
 const Property = () => {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -17,6 +18,10 @@ const Property = () => {
   const [coordinates, setCoordinates] = useState<{latitude: number, longitude: number} | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [visible, setIsVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [duration, setDuration] = useState<number | null>(null);
 
   const { data: property } = useAppwrite({
     fn: getPropertyByID,
@@ -30,8 +35,6 @@ const Property = () => {
       uri: item.image
     })) || [];
   }, [(property as any)?.gallery]);
-
-  const [visible, setIsVisible] = useState(false);
 
   const getCoordinatesFromAddress = async (address: string) => {
     try {
@@ -150,16 +153,16 @@ const Property = () => {
   };
 
   const handleRentPayment = () => {
-    router.push({
-      pathname: '/payment',
-      params:{
-        propertyId: (property as any)?.$id,
-        propertyName: (property as any)?.name,
-        rentAmount: (property as any)?.price,
-        imageUrl: (property as any)?.image,
-        address: (property as any)?.address,
-      }
-    })
+    setModalVisible(!modalVisible);
+  }
+
+  const onClose = () => {
+    setModalVisible(false);
+  }
+  
+  const getDetails = (selectedDate: Date, selectedDuration: number) => {
+    setStartDate(selectedDate);
+    setDuration(selectedDuration);
   }
 
   return (
@@ -428,6 +431,16 @@ const Property = () => {
             </View>
           }
         </View>
+        <RentalPeriodModal 
+          visible={modalVisible} 
+          onClose={onClose} 
+          onConfirm={getDetails} 
+          propertyId={(property as any)?.$id}
+          propertyName={(property as any)?.name}
+          rentAmount={(property as any)?.price}
+          imageUrl={(property as any)?.image}
+          address={(property as any)?.address}
+        />
       </ScrollView>
 
       <View className='absolute bg-white bottom-0 w-full rounded-t-2xl border-t border-r border-r border-primary-200 p-7'>

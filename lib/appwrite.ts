@@ -1,4 +1,4 @@
-import { Account, Avatars, Client, Databases, OAuthProvider, Query } from "react-native-appwrite";
+import { Account, Avatars, Client, Databases, Models, OAuthProvider, Query } from "react-native-appwrite";
 import * as Liniking from "expo-linking";
 import { openAuthSessionAsync } from "expo-web-browser";
 
@@ -11,6 +11,7 @@ export const config = {
     reviewsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID,
     agentsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID,
     propertiesCollectionId: process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID,
+    usersCollectionId: process.env.EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID,
 }
 
 export const client = new Client();
@@ -47,10 +48,54 @@ export async function login() {
 
         if(!session) throw new Error("Failed to create a session");
 
+        const user = await account.get();
+        await createOrUpdateUserProfile(user);
+
         return true;
     } catch (e) {
         console.error(e);
         return false;
+    }
+}
+
+async function createOrUpdateUserProfile(user: { $id?: string; name: any; email: string; phone: string; emailVerification: boolean; phoneVerification: boolean;}){
+    try {
+        const existingUser = await databases.getDocument(
+            config.databaseId!,
+            config.usersCollectionId!,
+            user.$id!
+        )
+        
+        if(existingUser) {
+            await databases.updateDocument(
+                config.databaseId!,
+                config.usersCollectionId!,
+                user.$id!,
+                {
+                    lastActive: new Date().toISOString()
+                }
+            )
+        }
+    } catch (error) {
+        await databases.createDocument(
+            config.databaseId!,
+            config.usersCollectionId!,
+            user.$id!,
+            {
+                userId: user.$id,
+                rentedProperties: [],
+                bookmarkedProperties: [],
+                accountStatus: "online",
+                avatar: avatar.getInitials(user.name),
+                lastActive: new Date().toISOString(),
+                accountCreated: new Date().toISOString(),
+                email: user.email,
+                emailVerification: user.emailVerification,
+                phone: user.phone,
+                phoneVerification: user.phoneVerification,
+                userName: user.name
+            }
+        )
     }
 }
 

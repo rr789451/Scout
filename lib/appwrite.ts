@@ -115,11 +115,23 @@ export async function getCurrentUser() {
         const user = await account.get();
         
         if(user.$id){
-            const userAvatar = await avatar.getInitials(user.name);
-            return {
-                ...user,
-                avatar: userAvatar.toString(),
-            };
+            try{
+                const customUser = await databases.getDocument(
+                    config.databaseId!,
+                    config.usersCollectionId!,
+                    user.$id
+                )
+
+                return {
+                    ...user,
+                    ...customUser
+                }
+            } catch (customUserError) {
+                return {
+                    ...user,
+                    avatar: avatar.getInitials(user.name).toString(),
+                }
+            }
         }
 
     }

@@ -1,7 +1,6 @@
 import { View, Text, FlatList, ScrollView, Image, Dimensions, TouchableOpacity, Platform, Linking, Alert, Share } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
-import { useAppwrite } from '@/lib/useAppwrite';
 import { getPropertyByID } from '@/lib/appwrite';
 import images from '@/constants/images';
 import icons from '@/constants/icons';
@@ -10,8 +9,11 @@ import MapView, {Marker} from 'react-native-maps';
 import Comment from '@/components/Comment';
 import ImageView from "react-native-image-viewing";
 import RentalPeriodModal from '@/components/RentalPeriodModal';
+import { useAppwriteRealTime } from '@/lib/useAppwriteRealTime';
+import { useGlobalContext } from '@/lib/global-provider';
 
 const Property = () => {
+  const { user } = useGlobalContext();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const windowHeight = Dimensions.get("window").height
 
@@ -23,17 +25,19 @@ const Property = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
 
-  const { data: property } = useAppwrite({
+  const { data: property } = useAppwriteRealTime({
     fn: getPropertyByID,
     params:{
       id: id!,
     },
+    collection: 'properties',
+    realTime: true
   });
 
   const formattedGalleryImages = React.useMemo(() => {
     return (property as any)?.gallery?.map((item: { image: any; }) => ({
       uri: item.image
-    })) || [];
+    })) || []; 
   }, [(property as any)?.gallery]);
 
   const getCoordinatesFromAddress = async (address: string) => {
@@ -163,6 +167,17 @@ const Property = () => {
   const getDetails = (selectedDate: Date, selectedDuration: number) => {
     setStartDate(selectedDate);
     setDuration(selectedDuration);
+  }
+
+  const isEmpty = (value: any) => !value || value === '' || value === null;
+
+  function formatDateToDDMMYYYY(isoDateString: string | undefined | null): string {
+    if (!isoDateString) return '';
+
+    const date = new Date(isoDateString);
+    if (isNaN(date.getTime())) return '';
+
+    return date.toLocaleDateString('en-GB');
   }
 
   return (
@@ -440,21 +455,51 @@ const Property = () => {
           rentAmount={(property as any)?.price}
           imageUrl={(property as any)?.image}
           address={(property as any)?.address}
-        />
+        /> 
       </ScrollView>
+        
+      { ((property as any)?.status === 'available' || isEmpty((property as any)?.status)) && isEmpty((property as any)?.rentedBy) ?
+        (
+          <View className='absolute bg-white bottom-0 w-full rounded-t-2xl border-t border-r border-r border-primary-200 p-7'>
+            <View className='flex flex-row items-center justify-between gap-10'>
+              <View className='flex flex-col items-start'>
+                <Text className='text-xs text-black-200 font-rubik-medium'>PRICE</Text>
+                <Text numberOfLines={1} className='text-xl text-start text-primary-300 font-rubik-bold'>$ {(property as any)?.price}</Text>
+              </View>
 
-      <View className='absolute bg-white bottom-0 w-full rounded-t-2xl border-t border-r border-r border-primary-200 p-7'>
-          <View className='flex flex-row items-center justify-between gap-10'>
-            <View className='flex flex-col items-start'>
-              <Text className='text-xs text-black-200 font-rubik-medium'>PRICE</Text>
-              <Text numberOfLines={1} className='text-xl text-start text-primary-300 font-rubik-bold'>$ {(property as any)?.price}</Text>
+              <TouchableOpacity onPress={handleRentPayment} className='flex-1 flex flex-row items-center justify-center bg-primary-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
+                <Text className='text-white text-lg text-center font-rubik-bold'>Rent Now</Text>
+              </TouchableOpacity>
             </View>
-
-            <TouchableOpacity onPress={handleRentPayment} className='flex-1 flex flex-row items-center justify-center bg-primary-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
-              <Text className='text-white text-lg text-center font-rubik-bold'>Rent Now</Text>
-            </TouchableOpacity>
+          </View> 
+        )
+        : 
+        (property as any)?.status === 'rented' && (property as any)?.rentedBy === user?.$id ?
+        (
+          <View className='absolute bg-white bottom-0 w-full rounded-t-2xl border-t border-r border-r border-primary-200 p-7'>
+            <View className='flex flex-row items-center justify-between gap-10'>
+              <TouchableOpacity className='flex-1 flex flex-col items-center justify-center bg-black-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
+                <Text className='text-white text-lg text-center font-rubik-bold'>Rented. Boom!</Text>
+                <Text className='text-xs text-white text-center font-rubik'>Find your rentals tucked in Profile.</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-      </View>
+        ) :
+          (
+            <View className='absolute bg-white bottom-0 w-full rounded-t-2xl border-t border-r border-r border-primary-200 p-7'>
+              <View className='flex flex-row items-center justify-between gap-10'>
+                <View className='flex flex-col items-start'>
+                  <Text className='text-xs text-black-200 font-rubik-medium'>Available From:</Text>
+                  <Text numberOfLines={1} className='text-lg text-start text-primary-300 font-rubik-bold'>{formatDateToDDMMYYYY((property as any)?.availableFrom)}</Text>
+                </View>
+
+                <TouchableOpacity className='flex-1 flex flex-row items-center justify-center bg-black-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
+                  <Text className='text-white text-lg text-center font-rubik-bold'>Off the Market</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) 
+      }
     </View>
   )
 }

@@ -7,6 +7,7 @@ import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, SafeAr
 import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { Card, SingleCard } from '@/components/Cards';
+import { getPropertyByID } from '@/lib/appwrite';
 
 const getCardType = ({ number } : { number: string }) => {
     const firstDigit = number.charAt(0);

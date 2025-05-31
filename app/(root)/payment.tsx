@@ -6,8 +6,7 @@ import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import icons from '@/constants/icons';
 import images from '@/constants/images';
-import { Card, SingleCard } from '@/components/Cards';
-import { getPropertyByID } from '@/lib/appwrite';
+import { SingleCard } from '@/components/Cards';
 
 const getCardType = ({ number } : { number: string }) => {
     const firstDigit = number.charAt(0);
@@ -156,6 +155,7 @@ function Payment() {
             router.replace({
                 pathname: '/paymentSuccess/[propertyName]',
                 params: { 
+                    propertyId: propertyId,
                     propertyName: Array.isArray(propertyName) ? propertyName[0] : propertyName,
                     imageUrl: Array.isArray(imageUrl) ? imageUrl[0] : imageUrl,
                 },

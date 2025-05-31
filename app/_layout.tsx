@@ -1,7 +1,7 @@
 import { SplashScreen, Stack } from "expo-router";
 import "./globals.css";
 import { useFonts } from "expo-font";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import GlobalProvider from "@/lib/global-provider";
 import { FilterModalProvider } from "@/lib/filterModalContext";
 import { StripeProvider } from "@/lib/StripeProvider";
@@ -28,25 +28,7 @@ export default function RootLayout() {
     <GlobalProvider>
       <FilterModalProvider>
         <StripeProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen 
-              name="payment"
-              options={{
-                headerShown: true,
-                title: 'Payment',
-                headerBackVisible: false
-              }}
-            />
-
-            <Stack.Screen 
-              name="paymentSuccess/[propertyName]"
-              options={{
-                headerShown: true,
-                title: 'Payment Successful',
-                headerBackVisible: false
-              }}
-            />
-          </Stack>
+          <Stack screenOptions={{ headerShown: false }} />
         </StripeProvider>
       </FilterModalProvider>
     </GlobalProvider>

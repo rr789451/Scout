@@ -4,7 +4,7 @@ import React from 'react'
 import { Image, SafeAreaView, Text, TouchableOpacity, View } from 'react-native'
 
 function PropertyName() {
-  const { propertyName, imageUrl } = useLocalSearchParams();
+  const { propertyId, propertyName, imageUrl } = useLocalSearchParams();
   const router = useRouter();
   const navigation = useNavigation();
 

@@ -14,7 +14,7 @@ export const categories = [
 
 export const settings = [
   {
-    title: "My Bookings",
+    title: "My Rented Properties",
     icon: icons.calendar,
   },
   {

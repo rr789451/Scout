@@ -26,6 +26,10 @@ const SettingsItem = ({ icon, title, onPress, textStyle, showArrow = true } : Se
   </TouchableOpacity>
 )
 
+const goToRentedProperties = () => {
+  
+}
+
 const Profile = () => {
   const { user, refetch } = useGlobalContext();
 
@@ -70,7 +74,8 @@ const Profile = () => {
         <View className='flex flex-col mt-10'>
           <SettingsItem
             icon={icons.calendar}
-            title="My Bookings"
+            title="My Rented Properties"
+            onPress={goToRentedProperties}
           />
 
           <SettingsItem

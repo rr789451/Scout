@@ -232,3 +232,20 @@ export async function getPropertyByID({ id }: { id: string }){
         return [];
     }
 }
+
+export async function fetchRentedProperties({ user } : { user: any }){
+    try {
+        if(!user?.rentedProperties || user?.rentedProperties.length === 0){
+            return [];
+        }
+
+        const propertyPromises = user?.rentedProperties.map((propertyId: string) => getPropertyByID({ id: propertyId }));
+
+        const properties = await Promise.all(propertyPromises);
+
+        return properties;
+    } catch (error) {
+        console.error('Error fetching rented properties: ', error);
+        return [];
+    }
+};

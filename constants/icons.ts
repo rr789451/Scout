@@ -39,6 +39,7 @@ import paypal from "@/assets/icons/paypal.png";
 import applepay from "@/assets/icons/applepay.png";
 import googlepay from "@/assets/icons/googlepay.png";
 import lock from "@/assets/icons/lock.png"
+import shieldCheck from "@/assets/icons/shield.gif"
 
 export default {
   google,
@@ -82,4 +83,5 @@ export default {
   applepay,
   googlepay,
   lock,
+  shieldCheck
 };

@@ -7,6 +7,7 @@ import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, SafeAr
 import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { SingleCard } from '@/components/Cards';
+import Modal from 'react-native-modal';
 
 const getCardType = ({ number } : { number: string }) => {
     const firstDigit = number.charAt(0);
@@ -160,7 +161,7 @@ function Payment() {
                     imageUrl: Array.isArray(imageUrl) ? imageUrl[0] : imageUrl,
                 },
               });  
-        }, 1000);
+        }, 3000);
     } catch (error) {
         setPaymentStatus('');
         Alert.alert('Payment Failed', 'We could not process your payment. Please check your details and try again.');
@@ -406,9 +407,25 @@ function Payment() {
                 )}
 
                 {paymentStatus ? (
-                    <View className='mb-4 p-3 bg-primary-200 rounded'>
-                        <Text className='text-primary-300'>{paymentStatus}</Text>
-                    </View>
+                    <Modal 
+                        isVisible={!!paymentStatus} 
+                        style={{ margin: 0, justifyContent: 'center', alignItems: 'center' }}
+                    >
+                        <View className='flex-1 w-full justify-center items-center bg-black/50'>
+                            <View className='bg-white w-full rounded-2xl p-6 w-4/5 items-center'>
+                                {paymentStatus?.includes('Processing') ? (
+                                    <ActivityIndicator size="large" className='text-primary-300' />
+                                ) : paymentStatus?.includes('Success') ? (
+                                    <Image 
+                                        source={icons.shieldCheck}
+                                        className='size-48 '
+                                        resizeMode='contain'
+                                    />
+                                ) : null}
+                                <Text className='text-md text-center font-semibold mt-4 text-primary-300'>{paymentStatus}</Text>
+                            </View>
+                        </View>
+                    </Modal>
                 ) : null}
 
                 {paymentMethod === 'card' && (

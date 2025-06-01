@@ -180,6 +180,10 @@ const Property = () => {
     return date.toLocaleDateString('en-GB');
   }
 
+  const handleRentedProperties = () => {
+    router.push('/user/rented')
+  }
+
   return (
     <View>
       <ScrollView
@@ -478,7 +482,7 @@ const Property = () => {
         (
           <View className='absolute bg-white bottom-0 w-full rounded-t-2xl border-t border-r border-r border-primary-200 p-7'>
             <View className='flex flex-row items-center justify-between gap-10'>
-              <TouchableOpacity className='flex-1 flex flex-col items-center justify-center bg-black-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
+              <TouchableOpacity onPress={handleRentedProperties} className='flex-1 flex flex-col items-center justify-center bg-black-300 shadow-md shadow-zinc-400 py-3 rounded-full'>
                 <Text className='text-white text-lg text-center font-rubik-bold'>Rented. Boom!</Text>
                 <Text className='text-xs text-white text-center font-rubik'>Find your rentals tucked in Profile.</Text>
               </TouchableOpacity>

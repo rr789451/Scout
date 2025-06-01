@@ -6,7 +6,7 @@ interface GlobalContextType {
     isLoggedIn: boolean;
     user: User | null;
     loading: boolean;
-    refetch: (newParams?: Record<string, string | number>) => Promise<void>;
+    refetchUser: (newParams?: Record<string, string | number>) => Promise<void>;
 }
 
 interface User {
@@ -14,6 +14,7 @@ interface User {
     name: string;
     email: string;
     avatar: string;
+    rentedProperties: string[];
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -39,7 +40,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
             isLoggedIn, 
             user, 
             loading, 
-            refetch, 
+            refetchUser: refetch, 
         }}>
             {children}
         </GlobalContext.Provider>

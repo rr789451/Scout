@@ -5,6 +5,7 @@ import icons from '@/constants/icons'
 import { settings } from '@/constants/data'
 import { useGlobalContext } from '@/lib/global-provider'
 import { logout } from '@/lib/appwrite'
+import { router } from 'expo-router'
 
 interface SettingsItemProps {
   icon: ImageSourcePropType
@@ -27,17 +28,17 @@ const SettingsItem = ({ icon, title, onPress, textStyle, showArrow = true } : Se
 )
 
 const goToRentedProperties = () => {
-  
+  router.push('/user/rented');
 }
 
 const Profile = () => {
-  const { user, refetch } = useGlobalContext();
+  const { user, refetchUser } = useGlobalContext();
 
   const handleLogout = async () => {
     const result = await logout();
     if (result) {
       Alert.alert('Success', 'You have been logged out successfully');
-      refetch();
+      refetchUser();
     } else {
       Alert.alert('Error', 'Something went wrong. Please try again');
     }

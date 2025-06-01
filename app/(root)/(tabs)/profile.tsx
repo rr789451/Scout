@@ -31,6 +31,10 @@ const goToRentedProperties = () => {
   router.push('/user/rented');
 }
 
+const goToBookmarkedProperties = () => {
+  router.push('/user/bookmarked')
+}
+
 const Profile = () => {
   const { user, refetchUser } = useGlobalContext();
 
@@ -80,8 +84,9 @@ const Profile = () => {
           />
 
           <SettingsItem
-            icon={icons.wallet}
-            title="My Payments"
+            icon={icons.bookmark}
+            title="Saved Picks"
+            onPress={goToBookmarkedProperties}
           />
         </View>
         <View className='flex flex-col mt-5 border-t pt-5 border-primary-200'>

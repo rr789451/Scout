@@ -249,3 +249,54 @@ export async function fetchRentedProperties({ user } : { user: any }){
         return [];
     }
 };
+
+export async function toggleBookmarkedProperties({ userId, propertyId } : { userId : string, propertyId: string }){
+  try {
+    if(!userId || !propertyId) throw new Error('User ID and Property ID are required.');
+
+    const user = await databases.getDocument(
+        config.databaseId!,
+        config.usersCollectionId!,
+        userId
+    );
+
+    let existingBookmarked = user.bookmarkedProperties || [];
+
+    if (existingBookmarked.includes(propertyId)) {
+      existingBookmarked = existingBookmarked.filter((id: string) => id !== propertyId);
+    } else {
+      existingBookmarked.push(propertyId);
+    }
+
+    await databases.updateDocument(
+      config.databaseId!,
+      config.usersCollectionId!,
+      userId,
+      {
+        bookmarkedProperties: existingBookmarked
+      }
+    )
+
+    return true
+  } catch (error) {
+    console.error('Error updating user bookmarked properties: ', error);
+    throw error;
+  }
+}
+
+export async function fetchBookmarkedProperties({ user } : { user: any }){
+    try {
+        if(!user?.bookmarkedProperties || user?.bookmarkedProperties.length === 0){
+            return [];
+        }
+
+        const bookmarkPromises = user?.bookmarkedProperties.map((propertyId: string) => getPropertyByID({ id: propertyId }));
+
+        const bookmarks = await Promise.all(bookmarkPromises);
+
+        return bookmarks;
+    } catch (error) {
+        console.error('Error fetching bookmarked properties: ', error);
+        return [];
+    }
+};

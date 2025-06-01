@@ -13,6 +13,15 @@ const UserLayout = () => {
           headerBackVisible: false
         }} 
       />
+
+      <Stack.Screen 
+        name="bookmarked" 
+        options={{
+          headerShown: false,
+          title: 'My Bookmarks',
+          headerBackVisible: false
+        }} 
+      />
     </Stack>
   )
 }

@@ -3,13 +3,30 @@ import React from 'react'
 import images from '@/constants/images';
 import icons from '@/constants/icons';
 import { Models } from 'react-native-appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
+import { toggleBookmarkedProperties } from '@/lib/appwrite';
 
 interface Props {
     item: Models.Document;
     onPress?: () => void;
 }
 
-export const FeaturedCard = ({ item: { image, rating, name, address, price }, onPress }: Props) => {
+export const FeaturedCard = ({ item: { image, rating, name, address, price, $id }, onPress }: Props) => {
+    const { user, updateUserBookmarks } = useGlobalContext();
+
+    const isBookmarked = user?.bookmarkedProperties?.includes($id) || false;
+
+    const handleSaveBookmark = async () => {
+        if (!user?.$id) return;
+
+        const willAdd = !isBookmarked;
+        const response = await toggleBookmarkedProperties({ userId: user.$id, propertyId: $id });
+        
+        if (response) {
+            updateUserBookmarks($id, willAdd);
+        }
+    };
+
     return(
         <TouchableOpacity onPress={onPress} className='flex flex-col items-start w-60 h-80 relative'>
             <Image 
@@ -32,17 +49,35 @@ export const FeaturedCard = ({ item: { image, rating, name, address, price }, on
                 <Text className='text-base font-rubik text-white'>{address}</Text>
                 <View className='flex flex-row items-center justify-between w-full'>
                     <Text className='text-xl font-rubik-extrabold text-white'>${price}</Text>
-                    <Image 
-                        source={icons.heart}
-                        className='size-5'
-                    />
+                    <TouchableOpacity onPress={handleSaveBookmark}>
+                        <Image 
+                            source={isBookmarked? icons.heartFilled : icons.heart}
+                            className='size-5'
+                            tintColor={isBookmarked ? "#ff4d4f" : "#FFFFFF"}
+                        />
+                    </TouchableOpacity>
                 </View>
             </View>
         </TouchableOpacity>
     )
 }
 
-export const Card = ({ item: { image, rating, name, address, price }, onPress }: Props) => {
+export const Card = ({ item: { image, rating, name, address, price, $id }, onPress }: Props) => {
+    const { user, updateUserBookmarks } = useGlobalContext();
+
+    const isBookmarked = user?.bookmarkedProperties?.includes($id) || false;
+
+    const handleSaveBookmark = async () => {
+        if (!user?.$id) return;
+
+        const willAdd = !isBookmarked;
+        const response = await toggleBookmarkedProperties({ userId: user.$id, propertyId: $id });
+        
+        if (response) {
+            updateUserBookmarks($id, willAdd);
+        }
+    };
+
     return(
         <TouchableOpacity onPress={onPress} className='flex-1 w-full mt-4 px-3 py-4 rounded-lg bg-white shadow-lg shadow-black-100/70 relative'>
             <View className='flex flex-row items-center absolute px-2 top-5 right-5 bg-white/90 rounded-full z-50'>
@@ -61,11 +96,13 @@ export const Card = ({ item: { image, rating, name, address, price }, onPress }:
                 <Text className='text-xs font-rubik text-black-200'>{address}</Text>
                 <View className='flex flex-row items-center justify-between mt-2'>
                     <Text className='text-base font-rubik-bold text-primary-300'>${price}</Text>
-                    <Image 
-                        source={icons.heart}
-                        className='w-5 h-5 mr-2'
-                        tintColor="#191d31"
-                    />
+                    <TouchableOpacity onPress={handleSaveBookmark}>
+                        <Image 
+                            source={isBookmarked? icons.heartFilled : icons.heart}
+                            className='w-5 h-5 mr-2'
+                            tintColor={isBookmarked ? "#ff4d4f" : "#191d31"}
+                        />
+                    </TouchableOpacity>
                 </View>
             </View>
         </TouchableOpacity>

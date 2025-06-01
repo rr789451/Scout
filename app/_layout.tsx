@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import GlobalProvider from "@/lib/global-provider";
 import { FilterModalProvider } from "@/lib/filterModalContext";
 import { StripeProvider } from "@/lib/StripeProvider";
+import Toast from 'react-native-toast-message';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts( {
@@ -29,6 +30,7 @@ export default function RootLayout() {
       <FilterModalProvider>
         <StripeProvider>
           <Stack screenOptions={{ headerShown: false }} />
+          <Toast />
         </StripeProvider>
       </FilterModalProvider>
     </GlobalProvider>

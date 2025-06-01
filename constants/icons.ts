@@ -38,8 +38,10 @@ import building from "@/assets/icons/building.png";
 import paypal from "@/assets/icons/paypal.png";
 import applepay from "@/assets/icons/applepay.png";
 import googlepay from "@/assets/icons/googlepay.png";
-import lock from "@/assets/icons/lock.png"
-import shieldCheck from "@/assets/icons/shield.gif"
+import lock from "@/assets/icons/lock.png";
+import shieldCheck from "@/assets/icons/shield.gif";
+import bookmark from "@/assets/icons/bookmark.png";
+import heartFilled from "@/assets/icons/heartFilled.png";
 
 export default {
   google,
@@ -83,5 +85,7 @@ export default {
   applepay,
   googlepay,
   lock,
-  shieldCheck
+  shieldCheck,
+  bookmark,
+  heartFilled
 };

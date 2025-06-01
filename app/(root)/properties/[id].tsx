@@ -1,7 +1,7 @@
 import { View, Text, FlatList, ScrollView, Image, Dimensions, TouchableOpacity, Platform, Linking, Alert, Share } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
-import { getPropertyByID } from '@/lib/appwrite';
+import { getPropertyByID, toggleBookmarkedProperties } from '@/lib/appwrite';
 import images from '@/constants/images';
 import icons from '@/constants/icons';
 import { facilities } from '@/constants/data';
@@ -11,9 +11,10 @@ import ImageView from "react-native-image-viewing";
 import RentalPeriodModal from '@/components/RentalPeriodModal';
 import { useAppwriteRealTime } from '@/lib/useAppwriteRealTime';
 import { useGlobalContext } from '@/lib/global-provider';
+import Toast from 'react-native-toast-message';
 
 const Property = () => {
-  const { user } = useGlobalContext();
+  const { user, updateUserBookmarks } = useGlobalContext();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const windowHeight = Dimensions.get("window").height
 
@@ -34,6 +35,19 @@ const Property = () => {
     realTime: true
   });
 
+  const isBookmarked = user?.bookmarkedProperties?.includes(id!) || false;
+
+  const handleSaveBookmark = async () => {
+    if (!user?.$id || !id) return;
+
+    const willAdd = !isBookmarked;
+    const response = await toggleBookmarkedProperties({ userId: user.$id, propertyId: id });
+    
+    if (response) {
+      updateUserBookmarks(id, willAdd);
+    }
+  };
+
   const formattedGalleryImages = React.useMemo(() => {
     return (property as any)?.gallery?.map((item: { image: any; }) => ({
       uri: item.image
@@ -41,34 +55,35 @@ const Property = () => {
   }, [(property as any)?.gallery]);
 
   const getCoordinatesFromAddress = async (address: string) => {
-    try {
-      const encodedAddress = encodeURIComponent(address);
-      const headers = {
-        'User-Agent': 'Scout/1.0', 
-        'Accept-Language': 'en'
-      };
-      
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&limit=1`,
-        { headers }
-      );
-      
-      const data = await response.json();
-      
-      if (data && data.length > 0) {
-        const { lat, lon } = data[0];
-        return { 
-          latitude: parseFloat(lat), 
-          longitude: parseFloat(lon) 
-        };
-      } else {
-        Alert.alert('Error', 'Could not find coordinates for this address');
-        return null;
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Could not find coordinates for this address');
+    if (!address) return null;
+    
+    const encodedAddress = encodeURIComponent(address);
+    const headers = {
+      'User-Agent': 'Scout/1.0', 
+      'Accept-Language': 'en'
+    };
+    
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&limit=1`,
+      { headers }
+    ).catch(() => null);
+    
+    if (!response || !response.ok) {
+      console.log('Failed to fetch coordinates');
       return null;
     }
+    
+    const data = await response.json().catch(() => null);
+    
+    if (data && data.length > 0) {
+      const { lat, lon } = data[0];
+      return { 
+        latitude: parseFloat(lat), 
+        longitude: parseFloat(lon) 
+      };
+    }
+    
+    return null;
   };
 
   const defaultRegion = {
@@ -82,20 +97,20 @@ const Property = () => {
 
   useEffect(() => {
     const fetchCoordinates = async () => {
+      if (!(property as any)?.address) return;
+      
       setLoading(true);
-      try {
-        const coords = await getCoordinatesFromAddress((property as any)?.address);
-        if (coords) {
-          setCoordinates(coords);
-          setError(null);
-        } else {
-          Alert.alert('Error','Could not find coordinates for this address');
-        }
-      } catch (err) {
-        Alert.alert('Error', 'Error loading map data');
-      } finally {
-        setLoading(false);
+      const coords = await getCoordinatesFromAddress((property as any)?.address);
+      
+      if (coords) {
+        setCoordinates(coords);
+        setError(null);
+      } else {
+        setCoordinates(null);
+        setError('Could not find coordinates');
       }
+      
+      setLoading(false);
     };
     
     fetchCoordinates();
@@ -138,21 +153,31 @@ const Property = () => {
       };
     }
     
-    try {
-      const result = await Share.share(shareOptions);
-      
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log('Shared with activity type: ', result.activityType);
-        } else {
-          console.log('Shared successfully!');
-        }
-      } else if (result.action === Share.dismissedAction) {
-        console.log('Share was dismissed');
+    const result = await Share.share(shareOptions);
+    
+    if (result.action === Share.sharedAction) {
+      if (result.activityType) {
+        Toast.show({
+          type: 'success',
+          text1: 'Shared successfully!',
+          position: 'top',
+          topOffset: 70
+        })
+      } else {
+        Toast.show({
+          type: 'success',
+          text1: 'Shared successfully!',
+          position: 'top',
+          topOffset: 70
+        })
       }
-    } catch (error) {
-      console.error('Error sharing property: ', error);
-      Alert.alert('Sharing Failed', 'Unable to share this property right now.');
+    } else if (result.action === Share.dismissedAction) {
+      Toast.show({
+          type: 'error',
+          text1: 'Share was dismissed',
+          position: 'top',
+          topOffset: 70
+      })
     }
   };
 
@@ -216,11 +241,13 @@ const Property = () => {
               </TouchableOpacity>
 
               <View className="flex flex-row items-center gap-3">
-                <Image
-                  source={icons.heart}
-                  className="size-7"
-                  tintColor={"#191D31"}
-                />
+                <TouchableOpacity onPress={handleSaveBookmark}>
+                  <Image
+                    source={isBookmarked? icons.heartFilled : icons.heart}
+                    className="size-7"
+                    tintColor={isBookmarked ? "#ff4d4f" : "#191D31"}
+                  />
+                </TouchableOpacity>
                 <TouchableOpacity onPress={onShare}>
                   <Image source={icons.send} className="size-7" />
                 </TouchableOpacity>
@@ -403,14 +430,15 @@ const Property = () => {
                 }
               }  
             >
-              {coordinates && (
-                <Marker 
-                  coordinate={coordinates}
-                  pinColor='#0066FF'
-                  title={(property as any)?.name}
-                  description={(property as any)?.address}
-                />
-              )}
+              <Marker 
+                coordinate={{
+                  latitude: coordinates?.latitude || defaultRegion.latitude,
+                  longitude: coordinates?.longitude || defaultRegion.longitude,
+                }}
+                pinColor='#0066FF'
+                title={(property as any)?.name || 'Property Location'}
+                description={(property as any)?.address || 'Address not available'}
+              />
             </MapView>
            </View>
           </View>

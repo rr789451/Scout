@@ -16,6 +16,7 @@ A modern, feature-rich property search and management application built with Rea
   - Advanced search with real-time filtering
   - Interactive map integration
   - Customizable search parameters
+  - Price range and property type filtering
 
 - **Property Details**
   - High-resolution image galleries
@@ -27,6 +28,12 @@ A modern, feature-rich property search and management application built with Rea
 - **User Profiles**
   - Personalized user settings
   - Account management options
+  - Bookmarked properties management
+  - Rental history and current rentals
+
+- **Payment Integration**
+  - Secure payment processing for property bookings
+  - Rental payment scheduling 
 
 ## 💻 Tech Stack
 
@@ -35,6 +42,7 @@ A modern, feature-rich property search and management application built with Rea
 - **Styling**: Tailwind CSS (via React Native Tailwind)
 - **Backend & Authentication**: Appwrite
 - **Map Integration**: React Native Maps
+- **Payment Processing**: Stripe integration
 
 ## 📁 Project Structure
 
@@ -81,6 +89,7 @@ EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID=
 EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID=
 EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID=
 EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID=
+EXPO_PUBLIC_APPWRITE_USERS_COLLECTION_ID=
 ```
 
 5. Start the development server:
@@ -98,6 +107,24 @@ The application uses Appwrite for authentication. Ensure you have set up the fol
 - Update the environment variables with your Appwrite credentials
 
 ## 💾 Database Schema
+
+### Users Collection
+```typescript
+interface Users {
+  userId: string;
+  rentedProperties: string[];
+  bookmarkedProperties: string[];
+  accountStatus: enum;
+  avatar: string;
+  lastActive: Date;
+  accountCreated: Date;
+  email: string;
+  emailVerification: boolean;
+  phone: string;
+  phoneVerification: boolean;
+  userName: string;
+}
+```
 
 ### Properties Collection
 ```typescript
@@ -140,6 +167,7 @@ interface Agents {
   name: string;
   email: email;
   avatar: url;
+  phone: string
 }
 ```
 
@@ -148,6 +176,8 @@ interface Agents {
 ### Regular Users
 - Browse and search properties
 - View detailed property information
+- Bookmark properties for future reference
+- Make rental payments
 
 ### Agents
 - Manage property listings
@@ -162,13 +192,20 @@ interface Agents {
 
 ### Property Discovery Flow
 1. Browse featured properties on Home screen
-2. Use search and filters on Explore screen
-3. View property details
-4. Contact agent
+2. Use advanced search and filters on Explore screen
+3. Save properties to bookmarks
+4. View detailed property information
+5. Contact agent for inquires
+
+### Rental Management Flow
+1. Apply for property rental
+2. Complete payment processing
+3. Track rental history
 
 ### User Profile Flow
 1. Access profile settings
-2. Manage account information
+2. Manage bookmarked properties
+3. View current rentals
 
 ## 🚀 Development
 
@@ -207,22 +244,17 @@ eas build:run
 
 ## 🔮 Future Enhancements
 
-### Phase 2 Development Roadmap
+### Phase 3 Development Roadmap
 
 1. **Dual Authentication System**
    - Separate login flows for property agents and regular users
    - Agent-specific dashboard and listing management
 
-2. **Advanced Filtering System**
-   - More granular search parameters
-   - Save and load custom filter configurations
-
-3. **Payment Integration**
-   - Secure payment processing for property bookings
-   - Multiple payment method support
-   - Booking deposit functionality
-   - Payment history and receipts
-
+2. **Real-Time Chat System**
+   - Direct messaging between agents and potential renters
+   - Chat history and message threading
+   - File sharing capabilities
+   - Push notifications for new messages
 
 ## 🤝 Contributing
 
